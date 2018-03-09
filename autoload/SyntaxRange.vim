@@ -47,19 +47,22 @@ function! SyntaxRange#Include( startPattern, endPattern, filetype, ... )
 "   a:filetype      The filetype syntax to use in the region.
 "   a:matchGroup    Optional highlight group for the a:startPattern and
 "		    a:endPattern matches themselves |:syn-matchgroup|.
+"   a:matchGroup    Optional list of groups allowed to begin inside the
+"		    region |:syn-contains|.
 "* RETURN VALUES:
 "   None.
 "******************************************************************************
     call SyntaxRange#IncludeEx(
     \   printf('%s keepend start="%s" end="%s" containedin=ALL',
-    \       (a:0 ? 'matchgroup=' . a:1 : ''),
+    \       (a:0 > 0 ? 'matchgroup=' . a:1 : ''),
     \       a:startPattern,
     \       a:endPattern
     \   ),
-    \   a:filetype
+    \   a:filetype,
+    \   (a:0 > 1 ? a:2 : ''),
     \)
 endfunction
-function! SyntaxRange#IncludeEx( regionDefinition, filetype )
+function! SyntaxRange#IncludeEx( regionDefinition, filetype, ...)
 "******************************************************************************
 "* PURPOSE:
 "   Define a syntax region from a:regionDefinition that includes the syntax for
@@ -74,6 +77,8 @@ function! SyntaxRange#IncludeEx( regionDefinition, filetype )
 "   a:regionDefinition  |:syn-region| definition with at least |:syn-start| and
 "			|:syn-end|.
 "   a:filetype      The filetype syntax to use in the region.
+"   a:matchGroup    Optional list of groups allowed to begin inside the
+"		    region |:syn-contains|.
 "* RETURN VALUES:
 "   None.
 "******************************************************************************
@@ -103,10 +108,11 @@ function! SyntaxRange#IncludeEx( regionDefinition, filetype )
 	unlet! b:current_syntax
     endif
 
-    execute printf('syntax region %s %s contains=@%s',
+    execute printf('syntax region %s %s contains=@%s%s',
     \   l:syntaxGroup,
     \   a:regionDefinition,
-    \   l:syntaxGroup
+    \   l:syntaxGroup,
+    \   (a:0 ? ',' . a:1 : ''),
     \)
 endfunction
 
